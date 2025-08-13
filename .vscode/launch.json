@@ -1,18 +1,18 @@
 {
   "version": "0.2.0",
   "configurations": [
-      {
-          "name": "Debug (LLDB)",
-          "type": "cppdbg",
-          "request": "launch",
-          "program": "${workspaceFolder}/build/netfin",
-          "args": [],
-          "stopAtEntry": false,
-          "cwd": "${workspaceFolder}",
-          "environment": [],
-          "externalConsole": false,
-          "MIMode": "lldb",
-          "preLaunchTask": "build:debug"
-      }
+    {
+      "name": "Debug (LLDB)",
+      "type": "cppdbg",
+      "request": "launch",
+      "program": "${workspaceFolder}/build/netfin",
+      "args": [],
+      "stopAtEntry": false,
+      "cwd": "${workspaceFolder}",
+      "environment": [],
+      "MIMode": "lldb",
+      "preLaunchTask": "build:debug",
+      "externalConsole": false,
+    }
   ]
 }

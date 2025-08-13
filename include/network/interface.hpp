@@ -16,7 +16,7 @@ namespace netfin::network {
       ~Interface() = default;
 
       bool is_localhost() const {
-        return m_address == LOCALHOST_IP || m_address == LOCALHOST_IPV6;
+        return m_address == LOCALHOST_IPV4 || m_address == LOCALHOST_IPV6;
       }
 
       std::string_view name() const { return m_name; }
@@ -54,7 +54,9 @@ namespace netfin::network {
       std::string m_address;
       std::string m_netmask;
 
-      inline static constexpr std::string_view LOCALHOST_IP = "127.0.0.1";
-      inline static constexpr std::string_view LOCALHOST_IPV6 = "::1";
+      inline static constexpr std::string_view LOCALHOST_IPV4 
+        = "127.0.0.1";
+      inline static constexpr std::string_view LOCALHOST_IPV6 
+        = "::1";
   };
 }

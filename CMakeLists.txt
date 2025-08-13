@@ -6,6 +6,10 @@ set(CMAKE_CXX_STANDARD 17)
 add_executable(netfin
  src/main.cpp
  src/network/interface_finder.cpp
+ src/network/host_prober/host_prober.cpp
+ src/network/host_prober/host_prober_apple.cpp
+ src/network/host_prober/host_prober_windows.cpp
+ src/network/host_prober/host_prober_linux.cpp
  src/utils/utils.cpp
  )
 
