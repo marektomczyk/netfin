@@ -1,7 +1,8 @@
 cmake_minimum_required(VERSION 3.10)
 project(netfin)
 
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 add_executable(netfin
  src/main.cpp
@@ -11,6 +12,8 @@ add_executable(netfin
  src/network/host_prober/host_prober_windows.cpp
  src/network/host_prober/host_prober_linux.cpp
  src/utils/utils.cpp
+ src/cli/arg_parser.cpp
+ 
  )
 
  target_include_directories(netfin PRIVATE include)

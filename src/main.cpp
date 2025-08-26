@@ -4,10 +4,26 @@
 #include "network/interface_finder.hpp"
 #include "network/host_prober/host_prober.hpp"
 #include "core/error_code.hpp"
+#include "cli/arg_parser.hpp"
 
-int main() {
+int main(int argc, char** argv) {
     using namespace netfin;
-    
+
+    cli::ArgParser arg_parser;
+    auto result = arg_parser.parse(argc, argv);
+
+    if (result) {
+        std::cout << "Command: " << result->command->name << '\n';
+        for (const auto& [opt, value] : result->options) {
+            std::cout << "Option: " << opt->name << " = " << value << '\n';
+        }
+        return 0;
+    } else {
+        std::cerr << "Invalid arguments\n";
+        return 1;
+    }
+
+    // TODO(mt): will be refactored later.
     auto interface_finder = network::InterfaceFinder();
     auto interfaces = interface_finder.find();
     if (interfaces.empty()) {

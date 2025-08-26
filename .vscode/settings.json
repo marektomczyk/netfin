@@ -1,4 +1,7 @@
 {
+  "C_Cpp.default.cppStandard": "c++20",
+  "C_Cpp.default.compileCommands": "${workspaceFolder}/build/compile_commands.json",
+  "C_Cpp.default.configurationProvider": "ms-vscode.cmake-tools",
   "files.associations": {
     "typeinfo": "cpp",
     "__bit_reference": "cpp",
@@ -40,6 +43,16 @@
     "variant": "cpp",
     "vector": "cpp",
     "cstddef": "cpp",
-    "algorithm": "cpp"
-  }
+    "algorithm": "cpp",
+    "span": "cpp",
+    "__split_buffer": "cpp",
+    "charconv": "cpp",
+    "forward_list": "cpp",
+    "future": "cpp",
+    "sstream": "cpp",
+    "__hash_table": "cpp",
+    "__node_handle": "cpp",
+    "execution": "cpp",
+    "unordered_map": "cpp"
+  },
 }
