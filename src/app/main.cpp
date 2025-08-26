@@ -1,10 +1,10 @@
-#include <iostream>
-#include <memory>
-
-#include "network/interface_finder.hpp"
-#include "network/host_prober/host_prober.hpp"
+#include "core/network/interface_finder.hpp"
+#include "core/host/host_prober_factory.hpp"
 #include "core/error_code.hpp"
 #include "cli/arg_parser.hpp"
+
+#include <iostream>
+#include <memory>
 
 int main(int argc, char** argv) {
     using namespace netfin;
@@ -24,14 +24,14 @@ int main(int argc, char** argv) {
     }
 
     // TODO(mt): will be refactored later.
-    auto interface_finder = network::InterfaceFinder();
+    auto interface_finder = core::network::InterfaceFinder();
     auto interfaces = interface_finder.find();
     if (interfaces.empty()) {
         std::cerr << "No network interfaces found\n";
         return core::ErrorCode::NoNetworkInterfacesFound;
     }
 
-    std::unique_ptr<network::HostProber> host_prober = network::HostProber::create();
+    std::unique_ptr<core::host::HostProber> host_prober = core::host::HostProberFactory::create();
     if (host_prober == nullptr) {
         std::cerr << "Platform not supported\n";
         return core::ErrorCode::PlatformNotSupported;

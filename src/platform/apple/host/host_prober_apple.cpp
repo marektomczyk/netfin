@@ -1,9 +1,9 @@
-#include "network/host_prober/host_prober_apple.hpp"
+#include "host_prober_apple.hpp"
 #include "core/platform.hpp"
 
 #if NETFIN_PLATFORM_APPLE
 
-#include "utils/utils.h"
+#include "core/utils/utils.hpp"
 
 #include <sys/socket.h>
 #include <netinet/in.h>
@@ -20,7 +20,7 @@
 #include <array>
 #include <future>
 
-namespace netfin::network {
+namespace netfin::core::host {
 
   bool HostProberApple::probe(
     std::string_view host,

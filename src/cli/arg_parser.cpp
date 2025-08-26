@@ -1,4 +1,4 @@
-#include "cli/arg_parser.hpp"
+#include "arg_parser.hpp"
 
 #include <string_view>
 #include <iostream>

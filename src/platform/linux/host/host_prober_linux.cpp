@@ -1,4 +1,4 @@
-#include "network/host_prober/host_prober_linux.hpp"
+#include "host_prober_linux.hpp"
 #include "core/platform.hpp"
 
 #if NETFIN_PLATFORM_LINUX
@@ -19,7 +19,7 @@
 #include <future>
 #include <fcntl.h>
 
-namespace netfin::network {
+namespace netfin::core::host {
 
   bool HostProberLinux::probe(
     std::string_view host,

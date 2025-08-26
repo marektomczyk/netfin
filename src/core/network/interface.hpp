@@ -1,10 +1,11 @@
 #pragma once
 
+#include "core/utils/utils.hpp"
+
 #include <string>
 #include <vector>
-#include "utils/utils.h"
 
-namespace netfin::network {
+namespace netfin::core::network {
   class Interface {
     public:
       explicit Interface(

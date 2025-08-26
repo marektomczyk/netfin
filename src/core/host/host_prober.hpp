@@ -4,7 +4,7 @@
 #include <chrono>
 #include <memory>
 
-namespace netfin::network {
+namespace netfin::core::host {
   class HostProber {
     public:
       virtual ~HostProber() = default;
@@ -17,8 +17,5 @@ namespace netfin::network {
     private:
       inline static constexpr std::chrono::milliseconds DEFAULT_TIMEOUT 
         = std::chrono::milliseconds(1000);
-
-    public:
-      static std::unique_ptr<HostProber> create();
   };
 }

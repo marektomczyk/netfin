@@ -1,9 +1,10 @@
 #pragma once
 
-#include <vector>
 #include "interface.hpp"
 
-namespace netfin::network {
+#include <vector>
+
+namespace netfin::core::network {
   class InterfaceFinder {
     public: 
       explicit InterfaceFinder() = default;

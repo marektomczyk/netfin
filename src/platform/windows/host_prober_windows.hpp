@@ -1,8 +1,8 @@
 #pragma once
 
-#include "network/host_prober/host_prober.hpp"
+#include "core/host/host_prober.hpp"
 
-namespace netfin::network {
+namespace netfin::core::host {
   class HostProberWindows : public HostProber {
     public:
       ~HostProberWindows() = default;

@@ -1,12 +1,12 @@
+#include "interface_finder.hpp"
+#include "core/utils/utils.hpp"
+
 #include <ifaddrs.h>
 #include <arpa/inet.h>
 #include <netinet/in.h>
 #include <sys/socket.h>
 
-#include "network/interface_finder.hpp"
-#include "utils/utils.h"
-
-namespace netfin::network {
+namespace netfin::core::network {
   std::vector<Interface> InterfaceFinder::find() const {
     std::vector<Interface> interfaces;
 
