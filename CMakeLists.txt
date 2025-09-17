@@ -1,16 +1,20 @@
 cmake_minimum_required(VERSION 3.10)
 project(netfin)
 
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-add_executable(netfin
- src/main.cpp
- src/network/interface_finder.cpp
- src/network/host_prober/host_prober.cpp
- src/network/host_prober/host_prober_apple.cpp
- src/network/host_prober/host_prober_windows.cpp
- src/network/host_prober/host_prober_linux.cpp
- src/utils/utils.cpp
- )
+file(GLOB_RECURSE NETFIN_SOURCES
+  "src/app/*.cpp"
+  "src/app/**/*.cpp"
+  "src/cli/*.cpp"
+  "src/cli/handlers/*.cpp"
+  "src/core/**/*.cpp"
+  "src/platform/**/*.cpp"
+  "src/platform_factory.cpp"
+)
 
- target_include_directories(netfin PRIVATE include)
+add_executable(netfin ${NETFIN_SOURCES})
+target_compile_options(netfin PRIVATE -fno-exceptions)
+target_compile_definitions(netfin PRIVATE _LIBCPP_NO_EXCEPTIONS)
+target_include_directories(netfin PRIVATE src)

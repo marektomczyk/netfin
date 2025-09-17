@@ -6,7 +6,7 @@
       "type": "cppdbg",
       "request": "launch",
       "program": "${workspaceFolder}/build/netfin",
-      "args": [],
+      "args": ["scan", "--interface=en0", "--timeout=1000"],
       "stopAtEntry": false,
       "cwd": "${workspaceFolder}",
       "environment": [],
