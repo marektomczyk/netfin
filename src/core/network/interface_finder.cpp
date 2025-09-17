@@ -7,7 +7,7 @@
 #include <sys/socket.h>
 
 namespace netfin::core::network {
-  std::vector<Interface> InterfaceFinder::find() const {
+  std::vector<Interface> InterfaceFinder::find() const noexcept {
     std::vector<Interface> interfaces;
 
     struct ifaddrs* ifap;

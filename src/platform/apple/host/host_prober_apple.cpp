@@ -5,115 +5,119 @@
 
 #include "core/utils/utils.hpp"
 
+#include <arpa/inet.h>
+#include <fcntl.h>
+#include <sys/sysctl.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
-#include <netinet/ip.h>
-#include <netinet/ip_icmp.h>
-#include <arpa/inet.h>
+#include <net/route.h>
+#include <net/if_dl.h>
 #include <unistd.h>
-#include <poll.h>
-#include <fcntl.h>
+
+#include <thread>
 #include <cstdint>
-#include <cerrno>
-#include <cstring>
 #include <chrono>
-#include <array>
-#include <future>
 
 namespace netfin::core::host {
 
   bool HostProberApple::probe(
     std::string_view host,
     const std::chrono::milliseconds& timeout
-  ) const {
+  ) const noexcept {
     struct sockaddr_in addr{};
-    if (!utils::resolve_ipv4(host, addr)) {
-      return false;
+    if (!utils::resolve_ipv4(host, addr)) return false;
+
+    if (has_arp_entry_for(addr.sin_addr.s_addr)) {
+      return true;
     }
 
-    auto fut_tcp = std::async(std::launch::async, [this, addr, timeout] {
-      return this->tcp_probe(addr, timeout);
-    });
-    auto fut_udp = std::async(std::launch::async, [this, addr, timeout] {
-      return this->udp_probe(addr, timeout);
-    });
+    int fd = ::socket(AF_INET, SOCK_DGRAM, 0);
+    if (fd < 0) { 
+      return false; 
+    }
 
-    const bool tcp_ok = fut_tcp.get();
-    const bool udp_ok = fut_udp.get();
+    fcntl(fd, F_SETFL, O_NONBLOCK);
 
-    return tcp_ok || udp_ok;
-  }
+    addr.sin_port = htons(9);
 
-  bool HostProberApple::tcp_probe(
-    const sockaddr_in& addr, 
-    const std::chrono::milliseconds& timeout
-  ) const {
-    int sock = ::socket(AF_INET, SOCK_STREAM, 0);
-    if (sock < 0) return false;
+    const auto start = std::chrono::steady_clock::now();
+    const auto deadline = start + timeout;
 
-    int flags = ::fcntl(sock, F_GETFL, 0);
-    if (flags >= 0) ::fcntl(sock, F_SETFL, flags | O_NONBLOCK);
+    const char b = '\0';
+    while (std::chrono::steady_clock::now() < deadline) {
+      ::sendto(fd, &b, 1, 0, reinterpret_cast<struct sockaddr*>(&addr), sizeof(addr));
 
-    struct sockaddr_in tcp_addr = addr;
-    tcp_addr.sin_port = htons(443);
+      std::this_thread::sleep_for(std::chrono::milliseconds(30));
 
-    int is_connected = ::connect(sock, reinterpret_cast<const sockaddr*>(&tcp_addr), sizeof(tcp_addr));
-    if (is_connected == 0) { ::close(sock); return true; }
-    if (is_connected < 0 && errno == EINPROGRESS) {
-      struct pollfd pfd{
-        .fd = sock,
-        .events = POLLOUT, 
-        .revents = 0
-      }; 
-      
-      int poll_result = ::poll(&pfd, 1, static_cast<int>(timeout.count()));
-      if (poll_result > 0) {
-        int soerr = 0; 
-        socklen_t slen = sizeof(soerr);
-        ::getsockopt(sock, SOL_SOCKET, SO_ERROR, &soerr, &slen);
-        ::close(sock);
-        if (soerr == 0) return true;           
-        if (soerr == ECONNREFUSED) return true;
-        return false;                            
+      if (has_arp_entry_for(addr.sin_addr.s_addr)) {
+        ::close(fd);
+        return true;
       }
     }
-    ::close(sock);
+
+    ::close(fd);
     return false;
   }
 
-  bool HostProberApple::udp_probe(
-    const sockaddr_in& addr, 
-    const std::chrono::milliseconds& timeout
-  ) const {
-    int sock = ::socket(AF_INET, SOCK_DGRAM, 0);
-    if (sock < 0) return false;
-
-    struct sockaddr_in udp_addr = addr; 
-    udp_addr.sin_port = htons(33434);
-    if (::connect(sock, reinterpret_cast<const sockaddr*>(&udp_addr), sizeof(udp_addr)) < 0) {
-      ::close(sock); return false;
+  bool HostProberApple::has_arp_entry_for(in_addr_t target) const noexcept {
+    constexpr size_t mib_size = 6;
+    int mib[mib_size];
+    {
+      int i = 0;
+      mib[i++] = CTL_NET;
+      mib[i++] = PF_ROUTE;
+      mib[i++] = 0;
+      mib[i++] = AF_INET;
+      mib[i++] = NET_RT_FLAGS;
+      mib[i++] = RTF_LLINFO;
     }
 
-    struct timeval tv{
-      .tv_sec = static_cast<int>(timeout.count() / 1000),
-      .tv_usec = static_cast<int>((timeout.count() % 1000) * 1000)
-    }; 
-    ::setsockopt(sock, SOL_SOCKET, SO_RCVTIMEO, &tv, sizeof(tv));
-
-    uint8_t b = 0; 
-    ::send(sock, &b, 1, 0);
-
-    uint8_t rb[1];
-    ssize_t recv_result = ::recv(sock, rb, sizeof(rb), 0);
-    if (recv_result < 0) {
-      int err = errno;
-      ::close(sock);
-      if (err == ECONNREFUSED) return true;
+    size_t needed = 0;
+    if (sysctl(mib, mib_size, nullptr, &needed, nullptr, 0) != 0 || needed == 0) {
       return false;
     }
 
-    ::close(sock);
-    return true; 
+    std::vector<unsigned char> buf(needed);
+    if (sysctl(mib, mib_size, buf.data(), &needed, nullptr, 0) != 0) {
+      return false;
+    }
+
+    unsigned char* next = buf.data();
+    unsigned char* end  = buf.data() + needed;
+    while (next < end) {
+      auto* rtm = reinterpret_cast<struct rt_msghdr*>(next);
+      if (rtm->rtm_msglen == 0) break;
+
+      struct sockaddr* sa = reinterpret_cast<struct sockaddr*>(rtm + 1);
+      struct sockaddr_in* sin = nullptr;
+      struct sockaddr_dl* sdl = nullptr;
+
+      for (int i = 0, bit = 1; 
+            i < RTAX_MAX && reinterpret_cast<unsigned char*>(sa) < next + rtm->rtm_msglen; 
+            ++i, bit <<= 1) {
+
+        if ((rtm->rtm_addrs & bit) == 0) continue;
+
+        if (i == RTAX_DST) {
+          if (sa->sa_family == AF_INET) sin = reinterpret_cast<struct sockaddr_in*>(sa);
+        } else if (i == RTAX_GATEWAY) {
+          if (sa->sa_family == AF_LINK) sdl = reinterpret_cast<struct sockaddr_dl*>(sa);
+        }
+        auto sa_size = sa->sa_len ? (1 + ((sa->sa_len - 1) | (sizeof(long) - 1))) : sizeof(long);
+        sa = reinterpret_cast<struct sockaddr*>(reinterpret_cast<unsigned char*>(sa) + sa_size);
+      }
+
+      if (sin != nullptr && 
+          sdl != nullptr && 
+          sin->sin_addr.s_addr == target && 
+          sdl->sdl_alen > 0) {
+        return true;
+      }
+
+      next += rtm->rtm_msglen;
+    }
+
+    return false;
   }
 }
 

@@ -10,6 +10,6 @@ namespace netfin::core::network {
       explicit InterfaceFinder() = default;
       ~InterfaceFinder() = default;
 
-      std::vector<Interface> find() const;
+      std::vector<Interface> find() const noexcept;
   };
 };

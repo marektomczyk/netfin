@@ -7,7 +7,7 @@ namespace netfin::core::host {
   bool HostProberWindows::probe(
     std::string_view host,
     const std::chrono::milliseconds& timeout
-  ) const {
+  ) const noexcept {
     // TODO(mt): Implement windows prober
     return false;
   }

@@ -16,15 +16,15 @@ namespace netfin::core::network {
 
       ~Interface() = default;
 
-      bool is_localhost() const {
+      bool is_localhost() const noexcept {
         return m_address == LOCALHOST_IPV4 || m_address == LOCALHOST_IPV6;
       }
 
-      std::string_view name() const { return m_name; }
-      std::string_view address() const { return m_address; }
-      std::string_view netmask() const { return m_netmask; }
+      std::string_view name() const noexcept { return m_name; }
+      std::string_view address() const noexcept { return m_address; }
+      std::string_view netmask() const noexcept { return m_netmask; }
 
-      std::vector<std::string> enumerate_ip_addresses() const {
+      std::vector<std::string> enumerate_ip_addresses() const noexcept {
         std::vector<std::string> ip_addresses;
 
         auto address_opt = utils::ip_to_uint32(m_address);

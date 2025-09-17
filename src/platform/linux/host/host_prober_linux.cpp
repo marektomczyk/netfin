@@ -24,7 +24,7 @@ namespace netfin::core::host {
   bool HostProberLinux::probe(
     std::string_view host,
     const std::chrono::milliseconds& timeout
-  ) const {
+  ) const noexcept {
     sockaddr_in addr{};
     if (!utils::resolve_ipv4(host, addr)) {
       return false;
@@ -47,7 +47,7 @@ namespace netfin::core::host {
   bool HostProberLinux::dgram_icmp_probe(
     const sockaddr_in& addr, 
     const std::chrono::milliseconds& timeout
-  ) const {
+  ) const noexcept {
     int icmp_socket = ::socket(AF_INET, SOCK_DGRAM, IPPROTO_ICMP);
     if (icmp_socket < 0) return false;
 
@@ -86,7 +86,7 @@ namespace netfin::core::host {
   bool HostProberLinux::raw_icmp_probe(
     const sockaddr_in& addr, 
     const std::chrono::milliseconds& timeout
-  ) const {
+  ) const noexcept {
     int icmp_socket = ::socket(AF_INET, SOCK_RAW, IPPROTO_ICMP);
     if (icmp_socket < 0) return false;
 
@@ -137,7 +137,7 @@ namespace netfin::core::host {
   bool HostProberLinux::tcp_probe(
     const sockaddr_in& addr, 
     const std::chrono::milliseconds& timeout
-  ) const {
+  ) const noexcept {
     int tcp_socket = ::socket(AF_INET, SOCK_STREAM, 0);
     if (tcp_socket < 0) return false;
 
@@ -168,7 +168,7 @@ namespace netfin::core::host {
   bool HostProberLinux::udp_probe(
     const sockaddr_in& addr, 
     const std::chrono::milliseconds& timeout
-  ) const {
+  ) const noexcept {
     int udp_socket = ::socket(AF_INET, SOCK_DGRAM, 0);
     if (udp_socket < 0) return false;
 

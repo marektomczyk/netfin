@@ -6,6 +6,6 @@
 
 namespace netfin::core::host {
   namespace HostProberFactory {
-    std::unique_ptr<HostProber> create();
+    std::unique_ptr<HostProber> create() noexcept;
   };
 }

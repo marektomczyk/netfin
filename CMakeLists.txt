@@ -6,6 +6,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 file(GLOB_RECURSE NETFIN_SOURCES
   "src/app/*.cpp"
+  "src/app/**/*.cpp"
   "src/cli/*.cpp"
   "src/cli/handlers/*.cpp"
   "src/core/**/*.cpp"
@@ -14,4 +15,6 @@ file(GLOB_RECURSE NETFIN_SOURCES
 )
 
 add_executable(netfin ${NETFIN_SOURCES})
+target_compile_options(netfin PRIVATE -fno-exceptions)
+target_compile_definitions(netfin PRIVATE _LIBCPP_NO_EXCEPTIONS)
 target_include_directories(netfin PRIVATE src)

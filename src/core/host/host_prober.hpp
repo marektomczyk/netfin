@@ -12,9 +12,8 @@ namespace netfin::core::host {
       virtual bool probe(
         std::string_view host,
         const std::chrono::milliseconds& timeout = DEFAULT_TIMEOUT
-      ) const = 0;
+      ) const noexcept = 0;
 
-    private:
       inline static constexpr std::chrono::milliseconds DEFAULT_TIMEOUT 
         = std::chrono::milliseconds(1000);
   };

@@ -11,17 +11,9 @@ namespace netfin::core::host {
       bool probe(
         std::string_view host,
         const std::chrono::milliseconds& timeout
-      ) const override;
+      ) const noexcept override;
 
     private:
-      bool tcp_probe(
-        const sockaddr_in& addr, 
-        const std::chrono::milliseconds& timeout
-      ) const;
-
-      bool udp_probe(
-        const sockaddr_in& addr, 
-        const std::chrono::milliseconds& timeout
-      ) const;
+      bool has_arp_entry_for(in_addr_t target) const noexcept;
   };
 }

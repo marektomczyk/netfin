@@ -2,55 +2,55 @@
 #include "core/host/host_prober_factory.hpp"
 #include "core/error_code.hpp"
 #include "cli/arg_parser.hpp"
+#include "command/command_dispatcher.hpp"
 
 #include <iostream>
 #include <memory>
+#include <signal.h>
 
 int main(int argc, char** argv) {
+    ::signal(SIGPIPE, SIG_IGN);
+
     using namespace netfin;
+    using namespace netfin::app;
+    using namespace netfin::core;
+    using namespace netfin::cli;
+    using namespace netfin::core::host;
+    using namespace netfin::core::network;
 
-    cli::ArgParser arg_parser;
-    auto result = arg_parser.parse(argc, argv);
+    ArgParser arg_parser;
+    auto parseResult = arg_parser.parse(argc, argv);
 
-    if (result) {
-        std::cout << "Command: " << result->command->name << '\n';
-        for (const auto& [opt, value] : result->options) {
-            std::cout << "Option: " << opt->name << " = " << value << '\n';
-        }
-        return 0;
-    } else {
-        std::cerr << "Invalid arguments\n";
-        return 1;
-    }
+    std::ostream&  out = std::cout;
+    std::ostream&  err = std::cerr;
+    std::unique_ptr<HostProber> host_prober = HostProberFactory::create();
+    InterfaceFinder interface_finder = InterfaceFinder();
 
-    // TODO(mt): will be refactored later.
-    auto interface_finder = core::network::InterfaceFinder();
-    auto interfaces = interface_finder.find();
-    if (interfaces.empty()) {
-        std::cerr << "No network interfaces found\n";
-        return core::ErrorCode::NoNetworkInterfacesFound;
-    }
-
-    std::unique_ptr<core::host::HostProber> host_prober = core::host::HostProberFactory::create();
     if (host_prober == nullptr) {
-        std::cerr << "Platform not supported\n";
-        return core::ErrorCode::PlatformNotSupported;
+        err << "Platform not supported\n";
+        return ErrorCode::PlatformNotSupported;
     }
 
-    for (const auto& interface : interfaces) {
-        if (interface.is_localhost()) continue;
-        
-        auto ip_addresses = interface.enumerate_ip_addresses();
-        std::cout << "- " << interface.name() << ": " << interface.address() << '\n';
-        for (const auto& ip : ip_addresses) {
-            auto result = host_prober->probe(ip);
-            if (result) {
-                std::cout << " -> " << ip << " is REACHABLE\n";
-            } else {
-                std::cout << " -> " << ip << " is unreachable\n";
-            }
-        }
-    }
+    app::ExecutorContext executor_context = {
+        .host_prober = *host_prober,
+        .interface_finder = interface_finder,
+        .out = out,
+        .err = err,
+    };
 
-    return core::ErrorCode::Success;
+    app::CommandDispatcher command_dispatcher;
+    auto command = parseResult 
+        ? parseResult->command 
+        : &cli::HELP_CMD;
+    auto options = parseResult 
+        ? parseResult->options 
+        : std::unordered_map<const cli::Option*, std::string>{};
+    
+    
+    auto result = command_dispatcher.dispatch(
+        command, 
+        options, 
+        executor_context
+    );
+    return result;
 }

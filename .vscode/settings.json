@@ -53,6 +53,10 @@
     "__hash_table": "cpp",
     "__node_handle": "cpp",
     "execution": "cpp",
-    "unordered_map": "cpp"
+    "unordered_map": "cpp",
+    "__config": "cpp",
+    "chrono": "cpp",
+    "cerrno": "cpp",
+    "thread": "cpp"
   },
 }

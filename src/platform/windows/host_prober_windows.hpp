@@ -10,6 +10,6 @@ namespace netfin::core::host {
       bool probe(
         std::string_view host,
         const std::chrono::milliseconds& timeout
-      ) const override;
+      ) const noexcept override;
   };
 }

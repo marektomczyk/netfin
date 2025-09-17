@@ -55,21 +55,20 @@ namespace netfin::cli {
         std::string_view name = tok.substr(0, eq);
         std::string_view value = tok.substr(eq + 1);
         const Option* opt = match_option(name);
-        if (!opt) return std::nullopt; // unknown option
+        if (!opt) return std::nullopt;
         options[opt] = std::string(value);
         continue;
       }
 
-      // Handle --name value (peek next token)
       const Option* opt = match_option(tok);
-      if (!opt) return std::nullopt; // unknown option
+      if (!opt) return std::nullopt;
 
       std::string_view value;
       if (i + 1 < tokens.size() && !tokens[i + 1].empty() && tokens[i + 1][0] != '-') {
         value = tokens[i + 1];
         ++i; 
       } else {
-        // flag without explicit value
+        // flag without explicit value (e.g. -h or--help)
         value = std::string_view{"true"};
       }
       options[opt] = std::string(value);

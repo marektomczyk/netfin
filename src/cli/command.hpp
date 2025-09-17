@@ -4,10 +4,10 @@
 
 #include <string_view>
 #include <span>
-
+  
 namespace netfin::cli {
   enum class CommandType {
-    Ping,
+    Scan,
     Help,
     Version,
     List,
@@ -17,39 +17,36 @@ namespace netfin::cli {
     CommandType type;
     std::string_view name;
     std::string_view description;
+    std::string_view usage;
     std::span<const Option> options;
   };
   
-  inline constexpr Option PING_OPTS[] = { OPT_INTERFACE, OPT_TIMEOUT };
-  inline constexpr Command PING_CMD = {
-    CommandType::Ping,
-    "ping",
-    "Send ICMP echo to IPs/CIDR",
-    PING_OPTS,
+  inline constexpr Option SCAN_OPTS[] = { OPT_INTERFACE, OPT_TIMEOUT, OPT_HELP };
+  inline constexpr Command SCAN_CMD = {
+    CommandType::Scan,
+    "scan",
+    "Send ICMP echo requests to an IP or CIDR range",
+    "netfin scan [options]",
+    SCAN_OPTS,
   };
   inline constexpr Command HELP_CMD = {
     CommandType::Help,
     "help",
-    "Show general help",
+    "Show general help and usage information",
+    "netfin help",
     {},
   };
   inline constexpr Command VERSION_CMD = {
     CommandType::Version,
     "version",
-    "Show the app version",
-    {},
-  };
-  inline constexpr Command LIST_CMD = {
-    CommandType::List,
-    "list",
-    "List all commands",
+    "Show the application version",
+    "netfin version",
     {},
   };
 
   inline constexpr Command ALL_AVAILABLE_COMMANDS[] = {
-    PING_CMD,
+    SCAN_CMD,
     HELP_CMD,
     VERSION_CMD,
-    LIST_CMD,
   };
 }

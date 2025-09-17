@@ -11,22 +11,22 @@ namespace netfin::core::host {
       bool probe(
         std::string_view host,
         const std::chrono::milliseconds& timeout
-      ) const override;
+      ) const noexcept override;
 
     private:
       bool dgram_icmp_probe(
         const sockaddr_in& addr, 
         const std::chrono::milliseconds& timeout
-      ) const;
+      ) const noexcept;
 
       bool raw_icmp_probe(
         const sockaddr_in& addr, 
         const std::chrono::milliseconds& timeout
-      ) const;
+      ) const noexcept;
 
       bool tcp_probe(
         const sockaddr_in& addr, 
         const std::chrono::milliseconds& timeout
-      ) const;
+      ) const noexcept;
   };
 }
