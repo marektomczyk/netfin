@@ -49,7 +49,7 @@ int main(int argc, char** argv) {
     
     auto result = command_dispatcher.dispatch(
         command, 
-        options, 
+        ExecutorArgs{ options }, 
         executor_context
     );
     return result;

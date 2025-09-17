@@ -10,7 +10,7 @@
 
 namespace netfin::app {
   core::ErrorCode VersionCommandExecutor::run(
-    const std::unordered_map<const cli::Option*, std::string>& options, 
+    const ExecutorArgs& args, 
     ExecutorContext& context
   ) const {
     std::stringstream ss;
