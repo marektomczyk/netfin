@@ -21,13 +21,39 @@ namespace netfin::app {
     std::ostream& err = std::cerr;
   };
 
+  struct ExecutorArgs {
+    const std::unordered_map<const cli::Option*, std::string>& options;
+
+    bool has_option(cli::OptionType type) const noexcept {
+      for (const auto& [opt, _] : options) {
+        if (opt && opt->type == type) return true;
+      }
+      return false;
+    }
+ 
+    std::variant<std::string, int, bool> get_option_value(cli::OptionType type) const noexcept {
+      for (const auto& [opt, value] : options) {
+        if (opt != nullptr && opt->type == type) {
+          switch (opt->dataType) {
+            case cli::OptionDataType::String: return std::string(value);
+            case cli::OptionDataType::Boolean: return value == "true" || value == "1";
+            // TODO(mt): other number types?
+            case cli::OptionDataType::Number: return std::stoi(value); 
+            case cli::OptionDataType::None: return "";
+          }
+        }
+      }
+      return std::variant<std::string, int, bool>{};
+    }
+  };
+
   class CommandExecutor {
     public:
       CommandExecutor(const cli::Command* command) : m_command(command) {}
       virtual ~CommandExecutor() = default;
 
       core::ErrorCode execute(
-        const std::unordered_map<const cli::Option*, std::string>& options,
+        const ExecutorArgs& args,
         ExecutorContext& context
       ) const;
 
@@ -35,21 +61,11 @@ namespace netfin::app {
 
     protected:
       virtual core::ErrorCode run(
-        const std::unordered_map<const cli::Option*, std::string>& options,
+        const ExecutorArgs& args,
         ExecutorContext& context
       ) const = 0;
 
       inline const cli::Command* command() const { return m_command; }
-    
-      bool has_option(
-        const std::unordered_map<const cli::Option*, 
-        std::string>& options, cli::OptionType type
-      ) const;
-
-      std::variant<std::string, int, bool> get_option_value(
-        const std::unordered_map<const cli::Option*, 
-        std::string>& options, cli::OptionType type
-      ) const;
 
       const cli::Command* m_command;
 

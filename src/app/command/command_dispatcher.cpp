@@ -19,14 +19,14 @@ namespace netfin::app {
 
   core::ErrorCode CommandDispatcher::dispatch(
     const cli::Command* command, 
-    const std::unordered_map<const cli::Option*, std::string>& options, 
+    const ExecutorArgs& args, 
     ExecutorContext& context
   ) const {
     auto executor = m_command_executors.find(command->type);
     if (executor == m_command_executors.end()) {
       return core::ErrorCode::CommandNotFound;
     }
-    return executor->second->execute(options, context);
+    return executor->second->execute(args, context);
   }
 
   void CommandDispatcher::register_executor(std::unique_ptr<CommandExecutor> executor) {

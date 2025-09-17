@@ -12,7 +12,7 @@
 
 namespace netfin::app {
   core::ErrorCode ScanCommandExecutor::run(
-    const std::unordered_map<const cli::Option*, std::string>& options, 
+    const ExecutorArgs& args, 
     ExecutorContext& context
   ) const {
     using namespace netfin::core::network;
@@ -27,7 +27,7 @@ namespace netfin::app {
       return core::ErrorCode::NoNetworkInterfacesFound;
     }
 
-    const auto interface_var = get_option_value(options, cli::OptionType::Interface);
+    const auto interface_var = args.get_option_value(cli::OptionType::Interface);
     if (auto interface = std::get_if<std::string>(&interface_var)) {
       std::erase_if(interfaces, [interface] (const auto& iface) {
         return iface.name() != *interface;
@@ -44,7 +44,7 @@ namespace netfin::app {
     
 
     auto timeout = HostProber::DEFAULT_TIMEOUT;
-    const auto timeout_var = get_option_value(options, cli::OptionType::Timeout);
+    const auto timeout_var = args.get_option_value(cli::OptionType::Timeout);
     if (auto tmo = std::get_if<int>(&timeout_var)) {
       if (*tmo <= 0) {
         context.err << "Timeout must be greater than 0\n";

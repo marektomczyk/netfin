@@ -14,7 +14,7 @@ namespace netfin::app {
 
       core::ErrorCode dispatch(
         const cli::Command* command, 
-        const std::unordered_map<const cli::Option*, std::string>& options, 
+        const ExecutorArgs& args, 
         ExecutorContext& context
       ) const;
 

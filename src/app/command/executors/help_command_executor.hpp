@@ -9,7 +9,7 @@ namespace netfin::app {
       virtual ~HelpCommandExecutor() = default;
 
       core::ErrorCode run(
-        const std::unordered_map<const cli::Option*, std::string>& options, 
+        const ExecutorArgs& args, 
         ExecutorContext& context
       ) const override;
   };
